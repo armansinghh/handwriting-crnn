@@ -149,7 +149,7 @@ handwriting-crnn/
 ## Roadmap
 
 Phase 0 — Environment Setup ✔
-Phase 1 — Dataset Analysis
+Phase 1 — Dataset Analysis ✔
 Phase 2 — Line-level CRNN Training
 Phase 3 — Line Segmentation
 Phase 4 — Full Page OCR Pipeline
