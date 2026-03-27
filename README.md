@@ -2,7 +2,7 @@
 
 A deep learning project for recognizing handwritten text using a **CRNN (Convolutional Recurrent Neural Network)**.
 
-The goal is to build a system that converts handwritten text images into machine-readable text. Eventually, the model should be capable of processing **entire handwritten pages**, detecting individual text lines, and recognizing them.
+The goal is to build an end-to-end system that converts handwritten text images into machine-readable text. The final system will be capable of processing **entire handwritten pages**, detecting individual text lines, and recognizing them.
 
 ---
 
@@ -14,7 +14,8 @@ Current progress:
 
 * Environment setup complete
 * CUDA-enabled PyTorch configured
-* Dataset analysis phase starting
+* IAM dataset parsing and preprocessing complete
+* `dataset.csv` generated with image paths and labels
 
 ---
 
@@ -32,7 +33,7 @@ Current progress:
 This project uses the **IAM Handwriting Database**.
 
 U. Marti and H. Bunke
-*“The IAM-database: an English sentence database for offline handwriting recognition”*
+*"The IAM-database: an English sentence database for offline handwriting recognition"*
 International Journal on Document Analysis and Recognition, 2002.
 
 Dataset:
@@ -43,17 +44,37 @@ http://www.fki.inf.unibe.ch/databases/iam-handwriting-database
 > Note: The IAM Handwriting Database is restricted to **non-commercial research use**.
 > This repository only contains code and does not redistribute the dataset.
 
-Expected dataset structure:
+### Expected Dataset Structure
 
 ```
 data/
  └── raw/
-      └── IAM/
-           ├── words/
-           └── ascii/
-                ├── words.txt
-                └── lines.txt
+      ├── words/
+      └── words.txt
 ```
+
+---
+
+## Data Pipeline
+
+The IAM words dataset is processed into a structured CSV format for training.
+
+Steps:
+
+1. Parse `words.txt`
+2. Filter valid samples (`ok`)
+3. Reconstruct image file paths
+4. Validate image existence
+5. Generate `dataset.csv`
+
+### Output Format
+
+```
+image_path,label
+data/raw/words/a01/a01-000u/a01-000u-00-00.png,A
+```
+
+This CSV serves as the input for the PyTorch Dataset class.
 
 ---
 
@@ -87,17 +108,29 @@ pip install -r requirements.txt
 
 ## Quick Start
 
-After installing dependencies, verify that PyTorch and CUDA are correctly configured:
+Verify that PyTorch and CUDA are correctly configured:
 
 ```
 python -c "import torch; print(torch.cuda.is_available())"
 ```
 
-If CUDA is configured correctly, this should return:
+Expected output:
 
 ```
 True
 ```
+
+---
+
+## Outputs
+
+Processed dataset:
+
+```
+data/processed/dataset.csv
+```
+
+This file contains image paths and corresponding labels used for training.
 
 ---
 
@@ -115,13 +148,15 @@ CRNN Recognition
 Text Output
 ```
 
-The recognition model architecture:
+### Recognition Model
 
 ```
-CNN → BiLSTM → CTC Decoder
+CNN → BiLSTM → CTC Loss
 ```
 
-This structure allows the model to convert an image of handwritten text into a sequence of characters.
+* **CNN** extracts visual features from the image
+* **BiLSTM** models sequential dependencies
+* **CTC Loss** enables alignment-free sequence prediction
 
 ---
 
@@ -148,20 +183,23 @@ handwriting-crnn/
 
 ## Roadmap
 
-Phase 0 — Environment Setup ✔
-Phase 1 — Dataset Analysis ✔
-Phase 2 — Line-level CRNN Training
-Phase 3 — Line Segmentation
-Phase 4 — Full Page OCR Pipeline
+* Phase 0 — Environment Setup ✔
+* Phase 1 — Dataset Preparation ✔
+* Phase 2 — CRNN Model Implementation
+* Phase 3 — Training Pipeline
+* Phase 4 — Line Segmentation
+* Phase 5 — Full Page OCR Pipeline
 
 ---
 
 ## Future Work
 
-* Implement line-level CRNN training
-* Build text line segmentation pipeline
-* Combine segmentation + recognition for full-page OCR
-* Add demo interface for handwritten text recognition
+* Implement CRNN architecture
+* Build PyTorch Dataset and DataLoader
+* Train model using CTC loss
+* Add decoding (greedy / beam search)
+* Develop line segmentation pipeline
+* Create demo interface for handwritten text recognition
 
 ---
 
