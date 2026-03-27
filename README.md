@@ -182,10 +182,6 @@ handwriting-crnn/
 └── README.md
 ```
 
-```
-
----
-
 ## Roadmap
 
 * Phase 0 — Environment Setup ✔
