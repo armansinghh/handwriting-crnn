@@ -166,17 +166,22 @@ CNN → BiLSTM → CTC Loss
 handwriting-crnn/
 │
 ├── data/                # Dataset directory (not included in repo)
-│   ├── raw/
-│   └── processed/
+│   ├── raw/             # Original IAM dataset (words/, words.txt)
+│   └── processed/       # Generated dataset (dataset.csv)
 │
-├── src/                 # Core model and training code
+├── src/                 
+│   └── dataset/         # Dataset handling
+│       └── iam_dataset.py
 │
-├── notebooks/           # Experiments and dataset analysis
+├── prepare_dataset.py   # Script to generate dataset.csv from words.txt
+├── test_dataset.py      # Temporary script to verify dataset loading
 │
 ├── requirements.txt
 ├── requirements-min.txt
 ├── LICENSE
 └── README.md
+```
+
 ```
 
 ---
