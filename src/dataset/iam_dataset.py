@@ -29,10 +29,14 @@ class IAMDataset(Dataset):
         label = self.data.iloc[idx]["label"]
 
         # Load image
-        try:
-            image = Image.open(image_path).convert("L")
-        except Exception:
-            return self.__getitem__((idx + 1) % len(self))
+        while True:
+             try:
+                image = Image.open(image_path).convert("L")
+                break
+             except Exception:
+                idx = (idx + 1) % len(self)
+                image_path = self.data.iloc[idx]["image_path"]
+                label = self.data.iloc[idx]["label"]
         image = self.transform(image)
 
         # Encode label
