@@ -5,6 +5,7 @@ from torch.utils.data import DataLoader
 from src.dataset.iam_dataset import IAMDataset
 from src.dataset.collate import collate_fn
 from src.models.crnn import CRNN
+from src.utils.decoder import Decoder
 
 
 # Device
@@ -34,54 +35,64 @@ criterion = nn.CTCLoss(blank=0)
 optimizer = torch.optim.Adam(model.parameters(), lr=0.001)
 
 
-# 🔁 One training step (just test)
-model.train()
-
-images, labels, label_lengths = next(iter(dataloader))
-
-images = images.to(device)
-labels = labels.to(device)
-label_lengths = label_lengths.to(device)
-
-# Forward
-outputs = model(images)   # [T, B, C]
-
-# Convert to log probs (VERY IMPORTANT)
-log_probs = torch.log_softmax(outputs, dim=2)
-
-from src.utils.decoder import Decoder
-
+# Decoder
 chars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
 decoder = Decoder(chars)
 
-pred_texts = decoder.decode(outputs)
-print("Predictions:", pred_texts)
 
-T, B, _ = log_probs.size()
+# 🚀 Training loop
+num_epochs = 3
 
-# Input lengths (all same)
-input_lengths = torch.full(size=(B,), fill_value=T, dtype=torch.long).to(device)
+for epoch in range(num_epochs):
+    model.train()
+    total_loss = 0
 
-# Flatten labels (CTC requirement)
-labels_list = []
+    for batch_idx, (images, labels, label_lengths) in enumerate(dataloader):
+        images = images.to(device)
+        labels = labels.to(device)
+        label_lengths = label_lengths.to(device)
 
-for i in range(labels.size(0)):  # batch size
-    length = label_lengths[i]
-    labels_list.append(labels[i, :length])
+        # Forward
+        outputs = model(images)   # [T, B, C]
+        log_probs = torch.log_softmax(outputs, dim=2)
 
-labels_flat = torch.cat(labels_list)
+        T, B, _ = log_probs.size()
 
-# Compute loss
-loss = criterion(
-    log_probs,
-    labels_flat,
-    input_lengths,
-    label_lengths
-)
+        # Input lengths (all same)
+        input_lengths = torch.full((B,), T, dtype=torch.long).to(device)
 
-# Backprop
-optimizer.zero_grad()
-loss.backward()
-optimizer.step()
+        # Flatten labels (remove padding)
+        labels_list = []
+        for i in range(labels.size(0)):
+            length = label_lengths[i]
+            labels_list.append(labels[i, :length])
 
-print("Loss:", loss.item())
+        labels_flat = torch.cat(labels_list)
+
+        # Loss
+        loss = criterion(
+            log_probs,
+            labels_flat,
+            input_lengths,
+            label_lengths
+        )
+
+        # Backprop
+        optimizer.zero_grad()
+        loss.backward()
+        optimizer.step()
+
+        total_loss += loss.item()
+
+        # Print progress
+        if batch_idx % 50 == 0:
+            print(f"Epoch {epoch+1} | Batch {batch_idx} | Loss: {loss.item():.4f}")
+
+    # Epoch summary
+    avg_loss = total_loss / len(dataloader)
+    print(f"\nEpoch {epoch+1} completed | Avg Loss: {avg_loss:.4f}")
+
+    # 🔽 Decode sample predictions (from last batch)
+    pred_texts = decoder.decode(outputs)
+    print("Sample Predictions:", pred_texts[:5])
+    print("-" * 50)
