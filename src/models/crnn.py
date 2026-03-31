@@ -6,6 +6,7 @@ class CRNN(nn.Module):
     def __init__(self):
         super().__init__()
 
+        # CNN backbone
         self.cnn = nn.Sequential(
             nn.Conv2d(1, 64, 3, padding=1),   # [B, 64, 32, 128]
             nn.ReLU(),
@@ -33,12 +34,31 @@ class CRNN(nn.Module):
             nn.ReLU()
         )
 
+        # RNN (BiLSTM)
+        self.rnn = nn.LSTM(
+            input_size=512,
+            hidden_size=256,
+            num_layers=2,
+            bidirectional=True
+        )
+
+        # Final classification layer
+        self.fc = nn.Linear(512, 63)  # 62 chars + 1 blank
+
     def forward(self, x):
-        features = self.cnn(x)
+        # CNN feature extraction
+        features = self.cnn(x)        # [B, 512, 1, 31]
+
         # Remove height dimension
         features = features.squeeze(2)   # [B, 512, 31]
 
-        # Permute to [W, B, C]
+        # Convert to sequence
         features = features.permute(2, 0, 1)  # [31, B, 512]
 
-        return features
+        # RNN
+        sequence, _ = self.rnn(features)      # [31, B, 512]
+
+        # Classification
+        output = self.fc(sequence)            # [31, B, 63]
+
+        return output
