@@ -49,6 +49,14 @@ outputs = model(images)   # [T, B, C]
 # Convert to log probs (VERY IMPORTANT)
 log_probs = torch.log_softmax(outputs, dim=2)
 
+from src.utils.decoder import Decoder
+
+chars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
+decoder = Decoder(chars)
+
+pred_texts = decoder.decode(outputs)
+print("Predictions:", pred_texts)
+
 T, B, _ = log_probs.size()
 
 # Input lengths (all same)
