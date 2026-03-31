@@ -98,3 +98,5 @@ for epoch in range(num_epochs):
     pred_texts = decoder.decode(outputs)
     print("Sample Predictions:", pred_texts[:5])
     print("-" * 50)
+
+    torch.save(model.state_dict(), "model.pth")
