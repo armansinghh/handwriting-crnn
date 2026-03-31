@@ -17,7 +17,7 @@ dataset = IAMDataset("data/processed/dataset.csv")
 
 dataloader = DataLoader(
     dataset,
-    batch_size=8,
+    batch_size=16,
     shuffle=True,
     collate_fn=collate_fn
 )
@@ -32,7 +32,7 @@ criterion = nn.CTCLoss(blank=0)
 
 
 # Optimizer
-optimizer = torch.optim.Adam(model.parameters(), lr=0.001)
+optimizer = torch.optim.Adam(model.parameters(), lr=0.0003)
 
 
 # Decoder
@@ -41,7 +41,7 @@ decoder = Decoder(chars)
 
 
 # 🚀 Training loop
-num_epochs = 3
+num_epochs = 5
 
 for epoch in range(num_epochs):
     model.train()
