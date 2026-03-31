@@ -10,6 +10,7 @@ from src.utils.decoder import Decoder
 
 # Device
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+print("Using device:", device)
 
 
 # Dataset
@@ -80,6 +81,7 @@ for epoch in range(num_epochs):
         # Backprop
         optimizer.zero_grad()
         loss.backward()
+        torch.nn.utils.clip_grad_norm_(model.parameters(), 5)
         optimizer.step()
 
         total_loss += loss.item()
