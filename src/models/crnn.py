@@ -47,7 +47,7 @@ class CRNN(nn.Module):
             hidden_size=128,
             num_layers=1,
             bidirectional=True,
-            dropout=0.3
+            dropout=0.0
         )
 
         # Final classification layer
