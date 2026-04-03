@@ -42,7 +42,9 @@ decoder = Decoder(chars)
 
 
 # 🚀 Training loop
-num_epochs = 5
+num_epochs = 12
+
+best_loss = float("inf")
 
 for epoch in range(num_epochs):
     model.train()
@@ -94,9 +96,16 @@ for epoch in range(num_epochs):
     avg_loss = total_loss / len(dataloader)
     print(f"\nEpoch {epoch+1} completed | Avg Loss: {avg_loss:.4f}")
 
-    # 🔽 Decode sample predictions (from last batch)
+   # 🔽 Decode sample predictions
     pred_texts = decoder.decode(outputs)
     print("Sample Predictions:", pred_texts[:5])
     print("-" * 50)
 
-    torch.save(model.state_dict(), "model.pth")
+    # Save latest model
+torch.save(model.state_dict(), "model.pth")
+
+# Save best model ONLY if improved
+if avg_loss < best_loss:
+    best_loss = avg_loss
+    torch.save(model.state_dict(), "best_model.pth")
+    print("Saved new best model!")

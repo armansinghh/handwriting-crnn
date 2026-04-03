@@ -5,3 +5,6 @@ data/raw/
 data/processed/
 .ipynb_checkpoints/
 model.pth
+best_model.pth
+test_images/
+logs/

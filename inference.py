@@ -12,7 +12,7 @@ device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 # Load model
 model = CRNN().to(device)
-model.load_state_dict(torch.load("model.pth", map_location=device, weights_only=True))
+model.load_state_dict(torch.load("best_model.pth", map_location=device, weights_only=True))
 model.eval()
 
 
@@ -48,6 +48,6 @@ def predict(image_path):
 
 
 if __name__ == "__main__":
-    img_path = "data\\raw\\words\\a01\\a01-000u\\a01-000u-00-01.png"  #  replace with your image
+    img_path = "testIMG.jpg"  #  replace with your image
     text = predict(img_path)
     print("Prediction:", text)
